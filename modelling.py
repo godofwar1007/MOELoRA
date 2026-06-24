@@ -416,27 +416,24 @@ def causal_model_forward(
     hidden_states = outputs[0].to(self.lm_head.weight.dtype)
     logits = self.lm_head(hidden_states).float()
     logits = torch.clamp(logits, min=-1e4, max=1e4)
-    
+
     loss = None
     if labels is not None:
         loss_fct = CrossEntropyLoss(ignore_index=-100)
 
         vocab_size_model = self.lm_head.weight.shape[0]
         print(f"=== DEBUG: vocab_size_model = {vocab_size_model}")
-        print(f"logits shape: {logits.shape}")   # should be [batch, seq_len, vocab_size]
+        print(f"logits shape: {logits.shape}")
 
         # --- Clamp (bulletproof) ---
+        # FIX: use valid_mask instead of invalid_mask — this correctly keeps
+        # -100 (ignore) and valid token ids [0, vocab_size), replaces everything
+        # else with -100 unconditionally, no conditional branch needed.
+        # Old approach had a subtle bug: only replaced if invalid_mask.any(),
+        # meaning padded eval batches with edge-case values could slip through.
         labels_dev = labels.to(logits.device)
-        invalid_neg = (labels_dev < 0) & (labels_dev != -100)
-        invalid_pos = (labels_dev >= vocab_size_model)
-        invalid_mask = invalid_neg | invalid_pos
-        if invalid_mask.any():
-            print(f"Found {invalid_mask.sum().item()} invalid labels (neg:{invalid_neg.sum().item()}, pos:{invalid_pos.sum().item()}) — replacing with -100")
-            labels_dev = torch.where(
-                invalid_mask,
-                torch.tensor(-100, dtype=labels_dev.dtype, device=labels_dev.device),
-                labels_dev
-            )
+        valid_mask = (labels_dev == -100) | ((labels_dev >= 0) & (labels_dev < vocab_size_model))
+        labels_dev = torch.where(valid_mask, labels_dev, torch.full_like(labels_dev, -100))
         shifted_labels = labels_dev[..., 1:]
         print(f"shifted_labels shape: {shifted_labels.shape}")
         print(f"shifted_labels min: {shifted_labels.min().item()}, max: {shifted_labels.max().item()}")
