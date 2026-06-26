@@ -1,16 +1,3 @@
-"""
-MALoRA Training Script
-Run: accelerate launch gemini.py
-
-Key fixes applied:
-1. Flash attention enabled
-2. Expert usage + routing entropy logging to WandB
-3. Auto-save on crash via signal handler (SIGTERM, SIGINT)
-4. remove_unused_columns=False consistently
-5. Hyperparams updated (LR, batch, warmup, grad clip, scheduler)
-6. Attention LoRA parameters included in trainable set
-7. Perplexity logged for both train and eval
-"""
 
 import os
 import signal
