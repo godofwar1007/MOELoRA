@@ -393,6 +393,7 @@ def causal_model_forward(
     output_hidden_states: Optional[bool] = None,
     output_router_logits: Optional[bool] = None,
     return_dict: Optional[bool] = None,
+    **kwargs,
 ) -> Union[Tuple, MoeCausalLMOutputWithPast]:
 
     output_attentions    = output_attentions    if output_attentions    is not None else self.config.output_attentions
