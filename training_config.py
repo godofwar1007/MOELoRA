@@ -15,7 +15,7 @@ class TrainingConfig:
     # Training parameters
     SEED: int            = 42
     NUM_EPOCHS: int      = 1
-    TRAIN_BATCH: int     = 12
+    TRAIN_BATCH: int     = 24
     EVAL_BATCH: int      = 16
     CONTEXT_LENGTH: int  = 1024
     LR: float            = 2e-4          # FIXED: was 1e-4, faster convergence
@@ -36,7 +36,7 @@ class TrainingConfig:
     # Logging parameters
     RESUME_FROM: str | None   = None     # set to checkpoint path to resume e.g "./outputs/malora/checkpoint-400"
     OUTPUT_DIR: str           = "./outputs/malora"
-    NUM_CHECKPOINT_LIMIT: int = 5        # FIXED: was 3, keep more checkpoints for safety
+    NUM_CHECKPOINT_LIMIT: int = 2        # FIXED: was 3, keep more checkpoints for safety
     LOGDIR: str               = "./logs"
     RUN_NAME: str             = "malora-run1"
     PROJECT_NAME: str         = "malora"
